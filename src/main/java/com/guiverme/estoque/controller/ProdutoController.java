@@ -1,9 +1,16 @@
 package com.guiverme.estoque.controller;
 
+import com.guiverme.estoque.dto.ProdutoRequestDTO;
 import com.guiverme.estoque.model.Produto;
+import com.guiverme.estoque.repository.ProdutoRepository;
 import com.guiverme.estoque.service.ProdutoService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -22,8 +29,14 @@ public class ProdutoController {
     }
 
     @PostMapping
-    public Produto salvar(@RequestBody Produto produto) {
-        return service.salvar(produto);
+    public ResponseEntity<Produto> criarProduto(@RequestBody @Valid ProdutoRequestDTO dados) {
+        Produto novoProduto = new Produto();
+        novoProduto.setNome(dados.nome());
+        novoProduto.setPreco(dados.preco());
+        novoProduto.setQuantidade(BigDecimal.ZERO);
+
+        Produto produtoSalvo = service.salvar(novoProduto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(produtoSalvo);
     }
 
     @DeleteMapping("/{id}")

@@ -1,6 +1,8 @@
 package com.guiverme.estoque.model;
-
+import jakarta.validation.Valid;
 import jakarta.persistence.*;
+
+import java.math.BigDecimal;
 
 @Entity
 public class Produto {
@@ -10,12 +12,12 @@ public class Produto {
     private Long id;
 
     private String nome;
-    private double preco;
-    private int quantidade;
+    private BigDecimal preco;
+    private BigDecimal quantidade;
 
     public Produto() {}
 
-    public Produto(String nome, double preco, int quantidade) {
+    public Produto(String nome, BigDecimal preco, BigDecimal quantidade) {
         setNome(nome);
         setPreco(preco);
         setQuantidade(quantidade);
@@ -29,25 +31,25 @@ public class Produto {
         return nome;
     }
 
-    public int getQuantidade() {return quantidade; }
+    public BigDecimal getQuantidade() {return quantidade; }
 
-    public double getPreco() {
+    public BigDecimal getPreco() {
         return preco;
     }
 
-    public double calcularValorTotal() {
-        return preco * quantidade;
+    public BigDecimal calcularValorTotal() {
+        return preco.multiply(quantidade);
     }
 
     public void setNome(String nome) {
         this.nome = nome;
     }
 
-    public void setPreco(double preco) {
+    public void setPreco(BigDecimal preco) {
         this.preco = preco;
     }
 
-    public void setQuantidade(int quantidade) {
+    public void setQuantidade(BigDecimal quantidade) {
         this.quantidade = quantidade;
     }
 }
