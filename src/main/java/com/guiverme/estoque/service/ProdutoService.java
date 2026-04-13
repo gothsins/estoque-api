@@ -6,6 +6,9 @@ import com.guiverme.estoque.model.Produto;
 import com.guiverme.estoque.repository.ProdutoRepository;
 import org.springframework.stereotype.Service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.text.Normalizer;
 import java.util.List;
 
@@ -18,7 +21,9 @@ public class ProdutoService {
         this.repository = repository;
     }
 
-    public List<Produto> listarTodos() {return repository.findAll();}
+    public Page<Produto> listarTodos (Pageable paginacao) {
+        return repository.findAll(paginacao);
+    }
 
     public Produto salvar(Produto produto) {
         String nomeLimpo = limparNome(produto.getNome());
@@ -37,14 +42,23 @@ public class ProdutoService {
         repository.deleteById(id);
     }
 
-    public Produto atualizar(Long id,  Produto produtoNovo) {
-        Produto produto = repository.findById(id)
+    public Produto atualizar(Long id, Produto produtoNovo) {
+
+        Produto produtoAtual = repository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Produto não encontrado com o ID: " + id));
-        produto.setNome(produtoNovo.getNome());
-        produto.setPreco(produtoNovo.getPreco());
-        produto.setQuantidade(produtoNovo.getQuantidade());
-        produto.setNome(limparNome(produto.getNome()));
-        return repository.save(produto);
+
+        String nomeLimpo = limparNome(produtoNovo.getNome());
+
+        var produtoExistente = repository.findByNomeIgnoreCase(nomeLimpo);
+
+        if (produtoExistente.isPresent() && !produtoExistente.get().getId().equals(id)) {
+            throw new RegraDeNegocioException("Já existe OUTRO produto cadastrado com o nome: " + nomeLimpo);
+        }
+
+        produtoAtual.setNome(nomeLimpo);
+        produtoAtual.setPreco(produtoNovo.getPreco());
+
+        return repository.save(produtoAtual);
     }
 
     private String limparNome(String texto) {
