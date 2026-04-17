@@ -39,6 +39,9 @@ public class ProdutoService {
     }
 
     public void deletar(Long id) {
+        if (!repository.existsById(id)) {
+            throw new RecursoNaoEncontradoException("Produto não encontrado com o ID: " + id);
+        }
         repository.deleteById(id);
     }
 
